@@ -370,8 +370,9 @@ with left_col:
     st.caption("Supported Formats: mp4, avi, mov, mkv, mp3, wav, m4a, flac, jpg, jpeg, png, webp")
     
     st.markdown("Ask Anything 💡!")
-    user_query = st.text_input(" ",
+    user_query = st.text_input("",
         placeholder="Enter your Query",
+        label_visibility="collapsed"
     )
 
     st.markdown("")
