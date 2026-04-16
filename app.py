@@ -31,7 +31,8 @@ st.set_page_config(
 st.markdown("""
 <style>
   /* ── global background ── */
-  .stApp { background-color: #6C6CC1; color: #e0e0f0; }
+  .stApp { background-color: #383885
+; color: #e0e0f0; }
 
   /* ── sidebar ── */
   section[data-testid="stSidebar"] {
