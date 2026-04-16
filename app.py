@@ -152,9 +152,12 @@ div[data-testid="InputInstructions"] {
 }
 [data-testid="stFileUploader"] button {
     width: 180px !important;
-    color: #5B3FD6 !important;
+    color: #B8B8FF !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
 }
-
   /* ── divider ── */
   hr { border-color: #2a2a4a !important; }
 
