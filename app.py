@@ -31,11 +31,11 @@ st.set_page_config(
 st.markdown("""
 <style>
   /* ── global background ── */
-  .stApp { background-color: #0D0C3B; color: #e0e0f0; }
+  .stApp { background-color: #545353; color: #e0e0f0; }
 
   /* ── sidebar ── */
   section[data-testid="stSidebar"] {
-      background-color: #111128 !important;
+      background-color: #333232 !important;
       border-right: 1px solid #2a2a4a;
   }
   section[data-testid="stSidebar"] * { color: #d0d0e8 !important; }
