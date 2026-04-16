@@ -63,19 +63,27 @@ def load_heavy_models():
             class_names.append(row['display_name'])
             
     # Tools
-    transcriber = aai.Transcriber()
+    transcriber = None
+
+    if aai.settings.api_key:
+        transcriber = aai.Transcriber()
     ocr_reader = easyocr.Reader(['en'], gpu=(device=="cuda"))
     
     return {
-        "clip": (clip_model, clip_processor),
-        "blip": (blip_model, blip_processor),
-        "yolo": yolo_model,
-        "video": (video_model, video_processor),
-        "yamnet": (yamnet_model, class_names),
-        "aai": transcriber,
-        "ocr": ocr_reader,
-        "device": device
-    }
+    "clip": (clip_model, clip_processor),
+    "blip": (blip_model, blip_processor),
+    "yolo": yolo_model,
+    "video": (video_model, video_processor),
+    "yamnet": (yamnet_model, class_names),
+    "aai": transcriber,
+    "ocr": ocr_reader,
+    "device": device
+}
+
+assembly_api_key = st.sidebar.text_input("AssemblyAI API Key", type="password")
+
+if assembly_api_key:
+    aai.settings.api_key = assembly_api_key
 
 # Load models once
 models = load_heavy_models()
