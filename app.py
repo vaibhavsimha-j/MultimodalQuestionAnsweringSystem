@@ -85,69 +85,151 @@ def load_heavy_models():
 models = load_heavy_models()
 
 # --- 4. FEATURE EXTRACTION LOGIC ---
-class MQAExtractor:
-    def __init__(self, m):
-        self.m = m
-        self.device = m["device"]
+# FEATURE EXTRACTION :
+class FeatureExtractor:
+    def __init__(self):
+        print(" Loading Vision Models (CLIP, BLIP, YOLO, TimeSformer)...")
+        self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
+        self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        self.blip_processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+        self.blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base").to(device)
+        self.yolo_model = YOLO('yolov8n.pt')
+        self.video_processor = VideoMAEImageProcessor.from_pretrained("facebook/timesformer-base-finetuned-k400")
+        self.video_model = TimesformerForVideoClassification.from_pretrained("facebook/timesformer-base-finetuned-k400").to(device)
 
-    def get_audio_data(self, video_path):
-        temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3").name
-        temp_wav = tempfile.NamedTemporaryFile(delete=False, suffix=".wav").name
-        
-        try:
-            video = VideoFileClip(video_path)
-            if video.audio:
-                # 1. Transcription (AssemblyAI)
-                video.audio.write_audiofile(temp_audio, verbose=False, logger=None)
-                transcript_text = "No transcript available"
+        print(" Loading Sound Model (YAMNet)...")
+        self.yamnet_model = hub.load('https://tfhub.dev/google/yamnet/1')
 
-            if self.m["aai"] is not None:
-                config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
-                transcript = self.m["aai"].transcribe(temp_audio, config=config)
-                transcript_text = transcript.text
-                
-                # 2. Sound Profile (YAMNet)
-                video.audio.write_audiofile(temp_wav, codec='pcm_s16le', verbose=False, logger=None)
-                waveform, _ = librosa.load(temp_wav, sr=16000)
-                scores, _, _ = self.m["yamnet"][0](waveform)
-                top_indices = np.argsort(np.mean(scores, axis=0))[-3:][::-1]
-                sounds = ", ".join([self.m["yamnet"][1][i] for i in top_indices])
-                
+        class_map_path = self.yamnet_model.class_map_path().numpy().decode('utf-8')
+        self.class_names = []
+        with open(class_map_path, 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                self.class_names.append(row['display_name'])
+
+        print(" Initializing AssemblyAI & OCR...")
+        self.transcriber = aai.Transcriber()
+        self.ocr_reader = easyocr.Reader(['en'], gpu=(device=="cuda"))
+
+    def get_audio_transcript(self, file_path):
+        target_path = file_path
+        temp_audio = "temp_audio_speech.mp3"
+        if file_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv')):
+            try:
+                video = VideoFileClip(file_path)
+                if video.audio:
+                    video.audio.write_audiofile(temp_audio, verbose=False, logger=None)
+                    target_path = temp_audio
                 video.close()
-                return transcript_text, sounds
-            return "No audio track", "No sounds"
-        finally:
-            for f in [temp_audio, temp_wav]:
-                if os.path.exists(f): os.remove(f)
+            except: return "Audio Extraction Failed"
 
-    def get_video_action(self, video_path):
+        try:
+            config = aai.TranscriptionConfig(speech_models=["universal-3-pro", "universal-2"])
+            transcript = self.transcriber.transcribe(target_path, config=config)
+            if os.path.exists(temp_audio) and target_path == temp_audio:
+                os.remove(temp_audio)
+            return transcript.text if transcript.text else "No speech detected."
+        except Exception as e:
+            return f"Transcription Failed: {e}"
+
+    def get_sound_profile(self, file_path):
+        audio_path = file_path
+        temp_wav = "temp_sound_analysis.wav"
+        if file_path.lower().endswith(('.mp4', '.avi', '.mov', '.mkv')):
+            try:
+                video = VideoFileClip(file_path)
+                video.audio.write_audiofile(temp_wav, codec='pcm_s16le', verbose=False, logger=None)
+                audio_path = temp_wav
+                video.close()
+            except: return "Sound extraction failed"
+
+        try:
+            waveform, _ = librosa.load(audio_path, sr=16000)
+            scores, _, _ = self.yamnet_model(waveform)
+            avg_scores = np.mean(scores, axis=0)
+            top_indices = np.argsort(avg_scores)[-3:][::-1]
+            results = [self.class_names[i] for i in top_indices]
+            if os.path.exists(temp_wav): os.remove(temp_wav)
+            return ", ".join(results)
+        except: return "Sound analysis failed"
+
+    def get_clip_embeddings(self, image, text_list):
+        inputs = self.clip_processor(text=text_list, images=image, return_tensors="pt", padding=True)
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+        with torch.no_grad():
+            outputs = self.clip_model(**inputs)
+        return outputs.logits_per_image
+
+    def get_blip_scout(self, image):
+        inputs = self.blip_processor(image, return_tensors="pt").to(device)
+        out = self.blip_model.generate(**inputs)
+        return self.blip_processor.decode(out[0], skip_special_tokens=True)
+
+    def get_yolo_detections(self, image):
+        results = self.yolo_model(image, verbose=False, conf=0.5)
+        detections = [self.yolo_model.names[int(c)] for c in results[0].boxes.cls.cpu().numpy()]
+        if not detections: return "No specific objects"
+        return ", ".join(set(detections))
+
+    def get_timesformer_action(self, video_path):
         cap = cv2.VideoCapture(video_path)
         frames = []
-        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        if total <= 0:
-            cap.release()
-            return "No action detected"
-        indices = np.linspace(0, max(total - 1, 0), 8).astype(int)
-        for i in range(total):
-            ret, frame = cap.read()
-            if ret and i in indices:
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if total_frames <= 0: return "Invalid Video"
+
+        indices = np.linspace(0, total_frames - 1, 8).astype(int)
+
+        count = 0
+        success = True
+        while success:
+            success, frame = cap.read()
+            if success and count in indices:
                 frame = cv2.resize(frame, (224, 224))
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 frames.append(frame)
-            if len(frames) == 8:
-                break
+            count += 1
+            if len(frames) == 8: break
         cap.release()
-        if len(frames) == 0:
-            return "No action detected"
-    
-        # Pad with last frame if fewer than 8 frames were extracted
+
         while len(frames) < 8:
-            frames.append(frames[-1])
-        inputs = self.m["video"][1](frames, return_tensors="pt").to(self.device)
+            frames.append(frames[-1] if frames else np.zeros((224, 224, 3), dtype=np.uint8))
+
+        inputs = self.video_processor(list(frames), return_tensors="pt").to(device)
         with torch.no_grad():
-            outputs = self.m["video"][0](**inputs)
-        pred_idx = outputs.logits.argmax().item()
-        return self.m["video"][0].config.id2label[pred_idx]
+            outputs = self.video_model(**inputs)
+
+        return self.video_model.config.id2label[outputs.logits.argmax().item()]
+
+    def get_ocr_text(self, image_path):
+        try:
+            results = self.ocr_reader.readtext(image_path, detail=0)
+            return ", ".join(results) if results else "No text detected"
+        except Exception as e:
+            return f"OCR Failed: {e}"
+
+# REASONING ENGINE :
+class ReasoningEngine:
+    def __init__(self):
+        self.client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+    def final_answer(self, query, data):
+        prompt = f"""
+        **Query:** {query}
+        **Audio Evidence:**
+        - Speech Transcript: "{data.get('transcript', 'N/A')}"
+        - Sound Profile: "{data.get('sound_tags', 'N/A')}"
+        **Visual Evidence:**
+        - Scene: {data.get('scout', 'N/A')}
+        - Action: {data.get('action', 'N/A')}
+        - Objects: {data.get('yolo_objects', 'N/A')}
+        - Classification (CLIP): {data.get('clip_match', 'N/A')}
+        - Extracted Text (OCR): {data.get('ocr_text', 'N/A')}
+
+        **Instructions:** Answer by combining audio and visual evidence. Be direct and concise.
+        """
+        resp = self.client.chat.completions.create(messages=[{"role": "user", "content": prompt}], model="llama-3.3-70b-versatile")
+        return resp.choices[0].message.content
+
 
 # --- 5. MAIN UI LAYOUT ---
 st.title("Multimodal QA System")
@@ -175,8 +257,8 @@ with col2:
 
 # --- 6. EXECUTION PIPELINE ---
 if run_btn and uploaded_file and query:
-    extractor = MQAExtractor(models)
-    groq_client = Groq(api_key=os.environ["GROQ_API_KEY"])
+    extractor = FeatureExtractor()
+    brain = ReasoningEngine()
     
     # Save upload to temp file for processing
     suffix = os.path.splitext(uploaded_file.name)[1]
