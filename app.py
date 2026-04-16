@@ -124,6 +124,27 @@ st.markdown("""
       margin-top: 12px;
   }
 
+[data-testid="stFileUploader"] {
+    max-width: 220px;
+}
+
+[data-testid="stFileUploader"] section {
+    padding: 0.5rem !important;
+    min-height: auto !important;
+}
+
+[data-testid="stFileUploader"] small {
+    display: none !important;
+}
+
+[data-testid="stFileUploader"] div[data-testid="stFileUploaderDropzoneInstructions"] {
+    display: none !important;
+}
+
+[data-testid="stFileUploader"] button {
+    width: 180px !important;
+}
+
   /* ── divider ── */
   hr { border-color: #2a2a4a !important; }
 
@@ -330,7 +351,7 @@ with st.sidebar:
 st.markdown("# Multimodal QA System")
 st.markdown(
     "<p style='color:#8080b0; margin-top:-10px; margin-bottom:20px;'>"
-    "Answers queries regarding your <b>AUDIO</b>, <b>VIDEO</b> &amp; <b>IMAGE</b> input"
+    "Answers queries regarding your <b>AUDIO</b>, <b>VIDEO</b> &amp; <b>IMAGE</b>"
     "</p>",
     unsafe_allow_html=True,
 )
@@ -348,8 +369,8 @@ with left_col:
     )
     st.caption("Supported Formats: mp4, avi, mov, mkv, mp3, wav, m4a, flac, jpg, jpeg, png, webp")
     
-    st.markdown("")
-    user_query = st.text_input("Ask Anything 💡!",
+    st.markdown("Ask Anything 💡!")
+    user_query = st.text_input(" ",
         placeholder="Enter your Query",
     )
 
