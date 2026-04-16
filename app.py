@@ -352,7 +352,7 @@ with st.sidebar:
 # ── MAIN LAYOUT ────────────────────────────────────────────────────────────────
 st.markdown("# Multimodal QA System")
 st.markdown(
-    "<p style='color:#FFFFFF; margin-top:-10px; margin-bottom:20px;'>"
+    "<p style='color: #CFCFCF; margin-top:-10px; margin-bottom:20px;'>"
     "Answers queries regarding your <b>AUDIO</b>, <b>VIDEO</b> &amp; <b>IMAGE</b>"
     "</p>",
     unsafe_allow_html=True,
