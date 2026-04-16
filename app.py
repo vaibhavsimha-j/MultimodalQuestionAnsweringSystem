@@ -26,7 +26,7 @@ st.set_page_config(page_title="Multimodal QA System", page_icon="⚙️", layout
 # --- 2. SIDEBAR FOR API KEYS (SECURITY) ---
 with st.sidebar:
     st.title("🔑 API Configuration")
-    st.markdown("Enter your API keys to start Multimodal Analysis.")
+    st.markdown("Enter your API keys to start the Multimodal QA System.")
     
     input_groq_key = st.text_input("Groq API Key", type="password", help="Get it from console.groq.com")
     input_aai_key = st.text_input("AssemblyAI API Key", type="password", help="Get it from assemblyai.com")
@@ -99,8 +99,12 @@ class MQAExtractor:
             if video.audio:
                 # 1. Transcription (AssemblyAI)
                 video.audio.write_audiofile(temp_audio, verbose=False, logger=None)
-                config = aai.TranscriptionConfig(speech_models=["universal-3-pro"])
+                transcript_text = "No transcript available"
+
+            if self.m["aai"] is not None:
+                config = aai.TranscriptionConfig(speech_model=aai.SpeechModel.best)
                 transcript = self.m["aai"].transcribe(temp_audio, config=config)
+                transcript_text = transcript.text
                 
                 # 2. Sound Profile (YAMNet)
                 video.audio.write_audiofile(temp_wav, codec='pcm_s16le', verbose=False, logger=None)
@@ -110,7 +114,7 @@ class MQAExtractor:
                 sounds = ", ".join([self.m["yamnet"][1][i] for i in top_indices])
                 
                 video.close()
-                return transcript.text, sounds
+                return transcript_text, sounds
             return "No audio track", "No sounds"
         finally:
             for f in [temp_audio, temp_wav]:
