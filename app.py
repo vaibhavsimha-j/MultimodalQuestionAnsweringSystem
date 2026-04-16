@@ -22,7 +22,7 @@ import tempfile
 # ── PAGE CONFIG ────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Multimodal QA System",
-    page_icon="🎯",
+    page_icon="⚙️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -321,7 +321,7 @@ with st.sidebar:
     )
 
     st.markdown("")
-    st.info("🔒 Your API Keys are not stored in our APP !")
+    st.info("🔒 Your API Keys are SAFE with us!")
 
     keys_ready = bool(groq_key and assembly_key)
 
@@ -330,7 +330,7 @@ with st.sidebar:
 st.markdown("# Multimodal QA System")
 st.markdown(
     "<p style='color:#8080b0; margin-top:-10px; margin-bottom:20px;'>"
-    "Answers your queries regarding your <b>TEXT</b>, <b>AUDIO</b>, <b>VIDEO</b> &amp; <b>IMAGE</b> input"
+    "Answers queries regarding your <b>AUDIO</b>, <b>VIDEO</b> &amp; <b>IMAGE</b> input"
     "</p>",
     unsafe_allow_html=True,
 )
@@ -342,37 +342,45 @@ with left_col:
     st.markdown("### Upload Media")
 
     uploaded_file = st.file_uploader(
-        "Upload Video or Image",
+        "Upload Image, Video or Audio \n Supported Formats : mp4, avi, mov, mkv, mp3, wav, m4a, flac, jpg, jpeg, png, webp" ,
         type=["mp4", "avi", "mov", "mkv", "mp3", "wav", "m4a", "flac", "jpg", "jpeg", "png", "webp"],
         label_visibility="visible",
     )
 
     st.markdown("")
     user_query = st.text_input(
-        "What would you like to know?",
-        placeholder="What is happening in the video?",
+        placeholder="Enter your Query",
     )
 
     st.markdown("")
-    query_clicked = st.button("Query", disabled=not keys_ready or uploaded_file is None or not user_query)
+    query_clicked = st.button("Run", disabled=not keys_ready or uploaded_file is None or not user_query)
 
     if not keys_ready:
-        st.caption("⚠️ Enter both API keys in the sidebar to enable querying.")
+        st.caption("⚠️ Enter both the API keys in the sidebar to enable querying.")
 
 # ── RIGHT COLUMN ───────────────────────────────────────────────────────────────
 with right_col:
-    st.markdown("### Preview of the Uploaded Content")
-
+    st.markdown("### Preview")
+    st.markdown(
+        """
+        <div style="margin-top:-40px;">
+            <h3 style="color:#c0c0e0; margin-bottom:20px;">Preview</h3>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     if uploaded_file is not None:
         file_ext = uploaded_file.name.rsplit(".", 1)[-1].lower()
         is_video = file_ext in ("mp4", "avi", "mov", "mkv")
         is_audio = file_ext in ("mp3", "wav", "m4a", "flac")
         is_image = file_ext in ("jpg", "jpeg", "png", "webp")
-
+        
+        preview_left, preview_center, preview_right = st.columns([0.1, 0.8, 0.1])
+        
         if is_video:
             st.video(uploaded_file)
         elif is_image:
-            st.image(uploaded_file, use_container_width=True)
+            st.image(uploaded_file, width= 450)
         elif is_audio:
             st.audio(uploaded_file)
     else:
