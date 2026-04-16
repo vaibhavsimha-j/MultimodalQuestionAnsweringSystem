@@ -159,10 +159,13 @@ div[data-testid="InputInstructions"] {
     text-align: center !important;
 }
 
-[data-testid="stStatusWidget"] summary {
+[data-testid="stStatusWidget"] details,
+[data-testid="stStatusWidget"] summary,
+[data-testid="stStatusWidget"] details summary,
+[data-testid="stStatusWidget"] summary:hover,
+[data-testid="stStatusWidget"] summary:focus,
+[data-testid="stStatusWidget"] summary:active {
     background: transparent !important;
-}
-[data-testid="stStatusWidget"] details summary {
     background-color: transparent !important;
 }
 
