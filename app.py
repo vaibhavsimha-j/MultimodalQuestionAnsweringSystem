@@ -86,6 +86,10 @@ st.markdown("""
   }
   .stTextInput label { color: #b0b0d0 !important; }
 
+div[data-testid="InputInstructions"] {
+      display: none !important;
+  }
+
   /* ── Query button ── */
   .stButton > button {
       background-color: #2a2a50 !important;
