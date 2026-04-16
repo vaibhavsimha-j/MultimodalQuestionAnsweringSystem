@@ -28,8 +28,8 @@ with st.sidebar:
     st.title("🔑 API Configuration")
     st.markdown("Enter your API keys to start Multimodal Analysis.")
     
-    input_groq_key = st.text_input("Groq API Key", type="Enter your Key", help="Get it from console.groq.com")
-    input_aai_key = st.text_input("AssemblyAI API Key", type="Enter your Key", help="Get it from assemblyai.com")
+    input_groq_key = st.text_input("Groq API Key", type="password", help="Get it from console.groq.com")
+    input_aai_key = st.text_input("AssemblyAI API Key", type="password", help="Get it from assemblyai.com")
     
     if input_groq_key:
         os.environ["GROQ_API_KEY"] = input_groq_key
