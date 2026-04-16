@@ -31,7 +31,7 @@ st.set_page_config(
 st.markdown("""
 <style>
   /* ── global background ── */
-  .stApp { background-color: #383885; color: #e0e0f0; }
+  .stApp { background-color: #2E2885; color: #e0e0f0; }
 
   /* ── sidebar ── */
   section[data-testid="stSidebar"] {
@@ -353,7 +353,7 @@ with st.sidebar:
 st.markdown("# Multimodal QA System")
 st.markdown(
     "<p style='color: #CFCFCF; margin-top:-10px; margin-bottom:20px;'>"
-    "Answers queries regarding your <b>AUDIO</b>, <b>VIDEO</b> &amp; <b>IMAGE</b>"
+    "Unlock deeper insights from your <b>AUDIO</b>, <b>VIDEO</b> &amp; <b>IMAGE</b>"
     "</p>",
     unsafe_allow_html=True,
 )
