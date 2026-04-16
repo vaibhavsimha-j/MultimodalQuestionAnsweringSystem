@@ -1,0 +1,16 @@
+torch
+torchvision
+torchaudio
+streamlit
+transformers
+ultralytics
+easyocr
+opencv-python-headless
+librosa
+moviepy
+assemblyai
+groq
+tensorflow
+tensorflow-hub
+numpy
+Pillow
