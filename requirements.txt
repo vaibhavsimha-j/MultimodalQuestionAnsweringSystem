@@ -1,6 +1,9 @@
+tensorflow==2.16.1
+tensorflow-hub==0.16.1
 streamlit
+torch
 torchvision
-ultralytics==8.2.0
+ultralytics
 transformers
 easyocr
 opencv-python-headless
@@ -8,7 +11,3 @@ librosa
 moviepy
 assemblyai
 groq
-tensorflow-cpu
-tensorflow-hub
-numpy<2.0.0
-Pillow
