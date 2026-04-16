@@ -356,7 +356,7 @@ with st.sidebar:
 # ── MAIN LAYOUT ────────────────────────────────────────────────────────────────
 st.markdown("# Multimodal QA System")
 st.markdown(
-    "<p style='color: #CFCFCF; margin-top:-10px; margin-bottom:20px;'>"
+    "<p style='color: #000033; margin-top:-10px; margin-bottom:20px;'>"
     "Unlock deeper insights from your <b>AUDIO</b>, <b>VIDEO</b> &amp; <b>IMAGE</b>"
     "</p>",
     unsafe_allow_html=True,
