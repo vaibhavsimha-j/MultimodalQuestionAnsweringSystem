@@ -428,8 +428,6 @@ if query_clicked and uploaded_file is not None and user_query and keys_ready:
     is_video = file_ext in ("mp4", "avi", "mov", "mkv")
     is_audio = file_ext in ("mp3", "wav", "m4a", "flac")
 
-    st.markdown("---")
-    st.markdown("### Answer")
 
     with st.spinner("Loading models (first run may take a few minutes)..."):
         extractor, brain = load_models(groq_key, assembly_key)
