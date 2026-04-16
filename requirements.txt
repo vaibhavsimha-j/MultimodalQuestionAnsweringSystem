@@ -8,6 +8,6 @@ transformers
 easyocr
 opencv-python-headless
 librosa
-moviepy
+moviepy==1.0.3
 assemblyai
 groq
