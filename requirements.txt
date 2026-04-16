@@ -1,15 +1,14 @@
-torch --index-url https://download.pytorch.org/whl/cpu
-torchvision --index-url https://download.pytorch.org/whl/cpu
 streamlit
-transformers
+torchvision
 ultralytics
+transformers
 easyocr
 opencv-python-headless
 librosa
 moviepy
 assemblyai
 groq
-tensorflow-cpu
+tensorflow
 tensorflow-hub
 numpy
 Pillow
