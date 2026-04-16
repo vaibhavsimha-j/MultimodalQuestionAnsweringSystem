@@ -150,6 +150,10 @@ div[data-testid="InputInstructions"] {
 [data-testid="stFileUploader"] button {
     width: 180px !important;
 }
+[data-testid="stFileUploader"] button {
+    width: 180px !important;
+    color: #5B3FD6 !important;
+}
 
   /* ── divider ── */
   hr { border-color: #2a2a4a !important; }
