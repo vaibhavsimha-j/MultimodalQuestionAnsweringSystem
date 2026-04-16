@@ -59,7 +59,7 @@ st.markdown("""
   h1 { color: #000033 !important; font-size: 2.4rem !important; font-weight: 700 !important; }
 
   /* ── section headers ── */
-  h2, h3 { color: #c0c0e0 !important; font-weight: 600 !important; }
+  h2, h3 { color: #000033 !important; font-weight: 600 !important; }
 
   /* ── panel cards ── */
   .panel-card {
