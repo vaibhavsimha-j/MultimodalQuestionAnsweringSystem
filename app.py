@@ -162,6 +162,9 @@ div[data-testid="InputInstructions"] {
 [data-testid="stStatusWidget"] summary {
     background: transparent !important;
 }
+[data-testid="stStatusWidget"] details summary {
+    background-color: transparent !important;
+}
 
   /* ── divider ── */
   hr { border-color: #2a2a4a !important; }
