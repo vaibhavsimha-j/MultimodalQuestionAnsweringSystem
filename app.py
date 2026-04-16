@@ -71,11 +71,11 @@ st.markdown("""
 
   /* ── file uploader ── */
   .stFileUploader > div {
-      background-color: #151530 !important;
+      background-color: #000033 !important;
       border: 1px dashed #3a3a60 !important;
       border-radius: 10px !important;
   }
-  .stFileUploader label { color: #c0c0e0 !important; }
+  .stFileUploader label { color: #B8B8FF !important; }
 
   /* ── text input (query box) ── */
   .stTextInput > div > div > input {
