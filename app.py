@@ -159,8 +159,8 @@ div[data-testid="InputInstructions"] {
     text-align: center !important;
 }
 
-[data-testid="stStatusWidget"] {
-    color: #B8B8FF !important;
+[data-testid="stStatusWidget"] summary {
+    background: transparent !important;
 }
 
   /* ── divider ── */
