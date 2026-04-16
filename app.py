@@ -342,13 +342,13 @@ with left_col:
     st.markdown("### Upload Media")
 
     uploaded_file = st.file_uploader(
-        "Upload Image, Video or Audio \n Supported Formats : mp4, avi, mov, mkv, mp3, wav, m4a, flac, jpg, jpeg, png, webp" ,
+        "Upload Image, Video or Audio\nSupported Formats : mp4, avi, mov, mkv, mp3, wav, m4a, flac, jpg, jpeg, png, webp" ,
         type=["mp4", "avi", "mov", "mkv", "mp3", "wav", "m4a", "flac", "jpg", "jpeg", "png", "webp"],
         label_visibility="visible",
     )
 
     st.markdown("")
-    user_query = st.text_input(
+    user_query = st.text_input("Ask Anything 💡!",
         placeholder="Enter your Query",
     )
 
