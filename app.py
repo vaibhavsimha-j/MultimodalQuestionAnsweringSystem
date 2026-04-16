@@ -21,15 +21,15 @@ from moviepy.editor import VideoFileClip
 import tempfile
 
 # --- 1. PAGE CONFIGURATION ---
-st.set_page_config(page_title="Multimodal MQA Agent", page_icon="🧠", layout="wide")
+st.set_page_config(page_title="Multimodal QA System", page_icon="⚙️", layout="wide")
 
 # --- 2. SIDEBAR FOR API KEYS (SECURITY) ---
 with st.sidebar:
     st.title("🔑 API Configuration")
-    st.markdown("Enter your keys to enable Multimodal Analysis.")
+    st.markdown("Enter your API keys to start Multimodal Analysis.")
     
-    input_groq_key = st.text_input("Groq API Key", type="password", help="Get it from console.groq.com")
-    input_aai_key = st.text_input("AssemblyAI API Key", type="password", help="Get it from assemblyai.com")
+    input_groq_key = st.text_input("Groq API Key", type="Enter your Key", help="Get it from console.groq.com")
+    input_aai_key = st.text_input("AssemblyAI API Key", type="Enter your Key", help="Get it from assemblyai.com")
     
     if input_groq_key:
         os.environ["GROQ_API_KEY"] = input_groq_key
@@ -37,7 +37,7 @@ with st.sidebar:
         aai.settings.api_key = input_aai_key
 
     st.divider()
-    st.info("💡 Pro-tip: This app uses YOLOv8 for objects, TimeSformer for actions, and YAMNet for background sounds.")
+    st.info("💡 Your API Keys are not stored in our APP !")
 
 # --- 3. CACHED MODEL LOADING ---
 @st.cache_resource
@@ -80,10 +80,6 @@ def load_heavy_models():
     "device": device
 }
 
-assembly_api_key = st.sidebar.text_input("AssemblyAI API Key", type="password")
-
-if assembly_api_key:
-    aai.settings.api_key = assembly_api_key
 
 # Load models once
 models = load_heavy_models()
@@ -139,8 +135,8 @@ class MQAExtractor:
         return self.m["video"][0].config.id2label[outputs.logits.argmax().item()]
 
 # --- 5. MAIN UI LAYOUT ---
-st.title("🤖 Agentic Multimodal QA")
-st.caption("Fusing Audio, Visual, and Text signals for deep context understanding.")
+st.title("Multimodal QA System")
+st.caption("Answers your queries regarding your TEXT,AUDIO, VIDEO & IMAGE input ")
 
 if not input_groq_key or not input_aai_key:
     st.warning("⚠️ Please provide your API keys in the sidebar to start.")
@@ -152,10 +148,10 @@ with col1:
     st.subheader("📁 Upload Media")
     uploaded_file = st.file_uploader("Upload Video or Image", type=['mp4', 'mov', 'avi', 'jpg', 'png', 'jpeg'])
     query = st.text_input("❓ What would you like to know?", placeholder="e.g., What brand of soda is on the table?")
-    run_btn = st.button("🔍 Run Full Pipeline", type="primary", use_container_width=True)
+    run_btn = st.button("🔍 Query", type="primary", use_container_width=True)
 
 with col2:
-    st.subheader("📺 Preview")
+    st.subheader("Preview of the Uploaded Content")
     if uploaded_file:
         if uploaded_file.type.startswith('video'):
             st.video(uploaded_file)
@@ -173,7 +169,7 @@ if run_btn and uploaded_file and query:
         tfile.write(uploaded_file.read())
         path = tfile.name
 
-    with st.status("🚀 Processing Multimodal Streams...", expanded=True) as status:
+    with st.status("Processing Multimodal Streams...", expanded=True) as status:
         results = {}
         is_vid = uploaded_file.type.startswith('video')
 
@@ -236,7 +232,7 @@ if run_btn and uploaded_file and query:
         """
         final_ans = groq_client.chat.completions.create(messages=[{"role": "user", "content": final_prompt}], model="llama-3.3-70b-versatile")
         
-        status.update(label="✅ Analysis Complete!", state="complete")
+        status.update(label="Analysis Complete!", state="complete")
 
     # --- 7. FINAL DISPLAY ---
     st.divider()
