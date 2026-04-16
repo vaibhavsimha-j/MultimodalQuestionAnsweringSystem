@@ -20,6 +20,7 @@ from groq import Groq
 from moviepy.editor import VideoFileClip
 import tempfile
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
 # --- 1. PAGE CONFIGURATION ---
 st.set_page_config(page_title="Multimodal QA System", page_icon="⚙️", layout="wide")
 
