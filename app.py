@@ -121,44 +121,33 @@ class MQAExtractor:
                 if os.path.exists(f): os.remove(f)
 
     def get_video_action(self, video_path):
-    cap = cv2.VideoCapture(video_path)
-    frames = []
-
-    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    if total <= 0:
+        cap = cv2.VideoCapture(video_path)
+        frames = []
+        total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if total <= 0:
+            cap.release()
+            return "No action detected"
+        indices = np.linspace(0, max(total - 1, 0), 8).astype(int)
+        for i in range(total):
+            ret, frame = cap.read()
+            if ret and i in indices:
+                frame = cv2.resize(frame, (224, 224))
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frames.append(frame)
+            if len(frames) == 8:
+                break
         cap.release()
-        return "No action detected"
-
-    indices = np.linspace(0, max(total - 1, 0), 8).astype(int)
-
-    for i in range(total):
-        ret, frame = cap.read()
-
-        if ret and i in indices:
-            frame = cv2.resize(frame, (224, 224))
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frames.append(frame)
-
-        if len(frames) == 8:
-            break
-
-    cap.release()
-
-    if len(frames) == 0:
-        return "No action detected"
-
-    # Pad with last frame if fewer than 8 frames were extracted
-    while len(frames) < 8:
-        frames.append(frames[-1])
-
-    inputs = self.m["video"][1](frames, return_tensors="pt").to(self.device)
-
-    with torch.no_grad():
-        outputs = self.m["video"][0](**inputs)
-
-    pred_idx = outputs.logits.argmax().item()
-    return self.m["video"][0].config.id2label[pred_idx]
+        if len(frames) == 0:
+            return "No action detected"
+    
+        # Pad with last frame if fewer than 8 frames were extracted
+        while len(frames) < 8:
+            frames.append(frames[-1])
+        inputs = self.m["video"][1](frames, return_tensors="pt").to(self.device)
+        with torch.no_grad():
+            outputs = self.m["video"][0](**inputs)
+        pred_idx = outputs.logits.argmax().item()
+        return self.m["video"][0].config.id2label[pred_idx]
 
 # --- 5. MAIN UI LAYOUT ---
 st.title("Multimodal QA System")
