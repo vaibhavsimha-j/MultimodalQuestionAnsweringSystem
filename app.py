@@ -158,6 +158,11 @@ div[data-testid="InputInstructions"] {
     align-items: center !important;
     text-align: center !important;
 }
+
+[data-testid="stStatusWidget"] {
+    color: #B8B8FF !important;
+}
+
   /* ── divider ── */
   hr { border-color: #2a2a4a !important; }
 
