@@ -38,7 +38,7 @@ st.markdown("""
       background-color: #000030 !important;
       border-right: 1px solid #2a2a4a;
   }
-  section[data-testid="stSidebar"] * { color: #d0d0e8 !important; }
+  section[data-testid="stSidebar"] * { color: #000030 !important; }
 
   /* ── sidebar text inputs ── */
   section[data-testid="stSidebar"] .stTextInput > div > div > input {
