@@ -1,6 +1,6 @@
 streamlit
 torchvision
-ultralytics
+ultralytics==8.2.0
 transformers
 easyocr
 opencv-python-headless
@@ -8,7 +8,7 @@ librosa
 moviepy
 assemblyai
 groq
-tensorflow
+tensorflow-cpu
 tensorflow-hub
-numpy
+numpy<2.0.0
 Pillow
