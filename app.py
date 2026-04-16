@@ -392,7 +392,7 @@ with right_col:
     st.markdown(
         """
         <div style="margin-top:-40px;">
-            <h3 style="color:#c0c0e0; margin-bottom:20px;">Preview</h3>
+            <h3 style="color:#000033; margin-bottom:20px;">Preview</h3>
         </div>
         """,
         unsafe_allow_html=True
