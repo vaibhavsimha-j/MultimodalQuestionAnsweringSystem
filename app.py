@@ -56,7 +56,7 @@ st.markdown("""
   }
 
   /* ── main title ── */
-  h1 { color: #ffffff !important; font-size: 2.4rem !important; font-weight: 700 !important; }
+  h1 { color: #000033 !important; font-size: 2.4rem !important; font-weight: 700 !important; }
 
   /* ── section headers ── */
   h2, h3 { color: #c0c0e0 !important; font-weight: 600 !important; }
