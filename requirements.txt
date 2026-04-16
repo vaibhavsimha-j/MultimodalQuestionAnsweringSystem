@@ -1,6 +1,5 @@
-torch
-torchvision
-torchaudio
+torch --index-url https://download.pytorch.org/whl/cpu
+torchvision --index-url https://download.pytorch.org/whl/cpu
 streamlit
 transformers
 ultralytics
@@ -10,7 +9,7 @@ librosa
 moviepy
 assemblyai
 groq
-tensorflow
+tensorflow-cpu
 tensorflow-hub
 numpy
 Pillow
