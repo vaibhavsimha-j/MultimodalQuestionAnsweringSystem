@@ -127,10 +127,12 @@ st.markdown("""
 [data-testid="stFileUploader"] {
     max-width: 220px;
 }
-
 [data-testid="stFileUploader"] section {
-    padding: 0.5rem !important;
+    padding: 1rem !important;
     min-height: auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
 [data-testid="stFileUploader"] small {
