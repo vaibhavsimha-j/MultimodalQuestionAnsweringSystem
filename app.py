@@ -339,14 +339,15 @@ left_col, right_col = st.columns([1, 1], gap="large")
 
 # ── LEFT COLUMN ────────────────────────────────────────────────────────────────
 with left_col:
-    st.markdown("### Upload Media")
-
+    st.markdown("Upload Media")
+    
     uploaded_file = st.file_uploader(
-        "Upload Image, Video or Audio\nSupported Formats : mp4, avi, mov, mkv, mp3, wav, m4a, flac, jpg, jpeg, png, webp" ,
+        "Upload Image, Video or Audio",
         type=["mp4", "avi", "mov", "mkv", "mp3", "wav", "m4a", "flac", "jpg", "jpeg", "png", "webp"],
-        label_visibility="visible",
+        label_visibility="collapsed",
     )
-
+    st.caption("Supported Formats: mp4, avi, mov, mkv, mp3, wav, m4a, flac, jpg, jpeg, png, webp")
+    
     st.markdown("")
     user_query = st.text_input("Ask Anything 💡!",
         placeholder="Enter your Query",
@@ -360,7 +361,6 @@ with left_col:
 
 # ── RIGHT COLUMN ───────────────────────────────────────────────────────────────
 with right_col:
-    st.markdown("### Preview")
     st.markdown(
         """
         <div style="margin-top:-40px;">
