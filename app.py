@@ -482,8 +482,9 @@ if query_clicked and uploaded_file is not None and user_query and keys_ready:
                 pil_frames.append(pil_frames[-1] if pil_frames else Image.new("RGB", (224, 224)))
 
             st.write("Generating caption...")
+            blip_frames = [pil_frames[0], pil_frames[3], pil_frames[7]]
             captions = []
-            for f in pil_frames:
+            for f in blip_frames:
                 c = extractor.get_blip_scout(f)
                 if c not in captions:
                     captions.append(c)
@@ -499,7 +500,7 @@ if query_clicked and uploaded_file is not None and user_query and keys_ready:
 
             st.write("Reading text (OCR)...")
             all_text = []
-            for f in pil_frames:
+            for f in blip_frames:
                 f.save("temp_frame_ocr.jpg")
                 text = extractor.get_ocr_text("temp_frame_ocr.jpg")
                 if os.path.exists("temp_frame_ocr.jpg"):
