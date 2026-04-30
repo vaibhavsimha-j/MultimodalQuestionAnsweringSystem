@@ -187,11 +187,11 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # ── FEATURE EXTRACTOR (logic unchanged) ───────────────────────────────────────
 class FeatureExtractor:
     def __init__(self):
-        self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
-        self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-        self.blip_processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
-        self.blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base").to(device)
-        self.yolo_model = YOLO('yolov8n.pt')
+        self.clip_model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14").to(device)
+        self.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+        self.blip_processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-large")
+        self.blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-large").to(device)
+        self.yolo_model = YOLO('yolov8m.pt')
         self.video_processor = VideoMAEImageProcessor.from_pretrained("facebook/timesformer-base-finetuned-k400")
         self.video_model = TimesformerForVideoClassification.from_pretrained("facebook/timesformer-base-finetuned-k400").to(device)
 
@@ -464,28 +464,74 @@ if query_clicked and uploaded_file is not None and user_query and keys_ready:
         if is_video:
             st.write("Analyzing video action...")
             analysis_data['action'] = extractor.get_timesformer_action(file_path)
+
+            # Extract the same 8 evenly-spaced frames (full resolution) used by TimeSformer
             cap = cv2.VideoCapture(file_path)
-            cap.set(cv2.CAP_PROP_POS_FRAMES, int(cap.get(cv2.CAP_PROP_FRAME_COUNT) / 2))
-            _, frame = cap.read()
-            raw_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            indices = set(np.linspace(0, total - 1, 8).astype(int))
+            pil_frames, count, success = [], 0, True
+            while success:
+                success, frame = cap.read()
+                if success and count in indices:
+                    pil_frames.append(Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
+                count += 1
+                if len(pil_frames) == 8:
+                    break
             cap.release()
+            while len(pil_frames) < 8:
+                pil_frames.append(pil_frames[-1] if pil_frames else Image.new("RGB", (224, 224)))
+
+            st.write("Generating caption...")
+            captions = []
+            for f in pil_frames:
+                c = extractor.get_blip_scout(f)
+                if c not in captions:
+                    captions.append(c)
+            analysis_data['scout'] = ". ".join(captions[:3])
+
+            st.write("Detecting objects...")
+            all_objects = set()
+            for f in pil_frames:
+                obj = extractor.get_yolo_detections(f)
+                if obj != "No specific objects":
+                    all_objects.update(obj.split(", "))
+            analysis_data['yolo_objects'] = ", ".join(all_objects) if all_objects else "No specific objects"
+
+            st.write("Reading text (OCR)...")
+            all_text = []
+            for f in pil_frames:
+                f.save("temp_frame_ocr.jpg")
+                text = extractor.get_ocr_text("temp_frame_ocr.jpg")
+                if os.path.exists("temp_frame_ocr.jpg"):
+                    os.remove("temp_frame_ocr.jpg")
+                if text and text != "No text detected" and text not in all_text:
+                    all_text.append(text)
+            analysis_data['ocr_text'] = ", ".join(all_text) if all_text else "No text detected"
+
+            st.write("Running CLIP classification...")
+            prompt = f"Query: {user_query}\nContext: {analysis_data['scout']}\nGenerate 15 visual candidates (comma list)."
+            resp = brain.client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model="llama-3.3-70b-versatile"
+            )
+            candidates = [c.strip() for c in resp.choices[0].message.content.split(',')]
+            all_logits = [extractor.get_clip_embeddings(f, candidates) for f in pil_frames]
+            avg_logits = torch.stack(all_logits).mean(0)
+            analysis_data['clip_match'] = candidates[avg_logits.argmax().item()]
+
         elif not is_audio:
             raw_img = Image.open(file_path).convert("RGB")
-        else:
-            raw_img = None
 
-        if raw_img:
             st.write("Generating caption...")
             analysis_data['scout'] = extractor.get_blip_scout(raw_img)
             st.write("Detecting objects...")
             analysis_data['yolo_objects'] = extractor.get_yolo_detections(raw_img)
 
             st.write("Reading text (OCR)...")
-            temp_ocr_path = "temp_frame_ocr.jpg"
-            raw_img.save(temp_ocr_path)
-            analysis_data['ocr_text'] = extractor.get_ocr_text(temp_ocr_path)
-            if os.path.exists(temp_ocr_path):
-                os.remove(temp_ocr_path)
+            raw_img.save("temp_frame_ocr.jpg")
+            analysis_data['ocr_text'] = extractor.get_ocr_text("temp_frame_ocr.jpg")
+            if os.path.exists("temp_frame_ocr.jpg"):
+                os.remove("temp_frame_ocr.jpg")
 
             st.write("Running CLIP classification...")
             prompt = f"Query: {user_query}\nContext: {analysis_data['scout']}\nGenerate 15 visual candidates (comma list)."
