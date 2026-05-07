@@ -30,36 +30,61 @@ A modular, end-to-end AI pipeline that accepts **images**, **audio**, and **vide
 
 ## 🏗️ System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    PRESENTATION LAYER                        │
-│              Streamlit Web Application                       │
-│    Upload │ Preview │ Query │ Progress │ Answer Display     │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│                    PERCEPTION LAYER                          │
-│                  FeatureExtractor Class                      │
-│                                                              │
-│  IMAGE BRANCH        VIDEO BRANCH         AUDIO BRANCH      │
-│  ┌──────────┐       ┌──────────────┐     ┌─────────────┐   │
-│  │   BLIP   │       │  TimeSformer │     │   YAMNet    │   │
-│  │  YOLOv8  │  ───► │     BLIP     │     │ AssemblyAI  │   │
-│  │   CLIP   │       │    YOLOv8    │     └─────────────┘   │
-│  │ EasyOCR  │       │     CLIP     │                        │
-│  └──────────┘       │   EasyOCR   │                        │
-│                     │ YAMNet + ASR│                        │
-│                     └──────────────┘                        │
-└──────────────────────┬──────────────────────────────────────┘
-                       │  Evidence Dictionary
-┌──────────────────────▼──────────────────────────────────────┐
-│                    REASONING LAYER                           │
-│                  ReasoningEngine Class                       │
-│           Llama 3.3 70B  ·  Groq API                       │
-│     Reads all evidence + query → Generates final answer     │
-└─────────────────────────────────────────────────────────────┘
-```
+## 🏗️ System Architecture
 
+```mermaid
+flowchart TD
+    A([" 📤 USER INPUT\nImage · Audio · Video "]) --> B
+
+    subgraph B["🖥️ PRESENTATION LAYER — Streamlit Web App"]
+        B1[Upload] --- B2[Preview] --- B3[Query] --- B4[Progress] --- B5[Answer Display]
+    end
+
+    B --> C
+
+    subgraph C["🔍 PERCEPTION LAYER — FeatureExtractor Class"]
+        direction LR
+
+        subgraph IMG["🖼️ Image Branch"]
+            I1[BLIP\nScene Captioning]
+            I2[YOLOv8\nObject Detection]
+            I3[CLIP\nVisual Classification]
+            I4[EasyOCR\nText Extraction]
+        end
+
+        subgraph VID["🎬 Video Branch"]
+            V1[TimeSformer\nAction Recognition]
+            V2[BLIP · YOLOv8\nCLIP · EasyOCR]
+            V3[YAMNet\nSound Classification]
+            V4[AssemblyAI\nSpeech Transcription]
+        end
+
+        subgraph AUD["🎙️ Audio Branch"]
+            A1[YAMNet\nSound Classification]
+            A2[AssemblyAI\nSpeech Transcription]
+        end
+    end
+
+    C --> D["📋 Evidence Dictionary\ncaption · objects · action · OCR · transcript · sounds"]
+
+    D --> E
+
+    subgraph E["🧠 REASONING LAYER — ReasoningEngine Class"]
+        E1["Llama 3.3 70B  ·  Groq API\nReads all evidence + query → Generates final answer"]
+    end
+
+    E --> F([" ✅ ACCURATE ANSWER "])
+
+    style A fill:#1A5F9C,color:#fff,stroke:#1A5F9C
+    style F fill:#00A896,color:#fff,stroke:#00A896
+    style D fill:#0D2137,color:#C8D8E8,stroke:#00C9B1
+    style IMG fill:#0D2137,color:#C8D8E8,stroke:#1A5F9C
+    style VID fill:#0D2137,color:#C8D8E8,stroke:#00C9B1
+    style AUD fill:#0D2137,color:#C8D8E8,stroke:#FF6B35
+    style B fill:#060E1A,color:#C8D8E8,stroke:#1A5F9C
+    style C fill:#060E1A,color:#C8D8E8,stroke:#00C9B1
+    style E fill:#060E1A,color:#C8D8E8,stroke:#FF6B35
+```
 ---
 
 ## 🤖 Models Used
@@ -283,8 +308,6 @@ Upload Audio
 **Vaibhav Simha J**  
 B.Tech CSE (AI & ML) — JAIN (Deemed-to-be University), Bangalore  
 📧 22btrcl163@jainuniversity.ac.in
-
-**Guide:** Dr. Swati Gupta, Assistant Professor, Dept. of CSE-AIML, JAIN University
 
 ---
 
