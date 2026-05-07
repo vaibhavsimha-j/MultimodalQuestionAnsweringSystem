@@ -30,8 +30,6 @@ A modular, end-to-end AI pipeline that accepts **images**, **audio**, and **vide
 
 ## 🏗️ System Architecture
 
-## 🏗️ System Architecture
-
 ```mermaid
 flowchart TD
     A([" 📤 USER INPUT\nImage · Audio · Video "]) --> B
